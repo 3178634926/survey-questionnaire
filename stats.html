@@ -222,33 +222,6 @@
         </div>
     </div>
     
-    <!-- Firebase SDK -->
-    <script type="module">
-        // 导入 Firebase
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        
-        // Firebase 配置（需要替换为你的配置）
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        
-        // 初始化 Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
-        // 将 db 设置为全局变量，供其他脚本使用
-        window.firebaseDb = db;
-        window.firebaseInitialized = true;
-        
-        console.log('Firebase 初始化成功');
-    </script>
-    
     <script src="script.js"></script>
     <script src="stats.js"></script>
 </body>

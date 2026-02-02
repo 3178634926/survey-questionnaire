@@ -117,7 +117,8 @@ function generateChoiceQuestionStats(questionKey, allData) {
         .sort((a, b) => b[1] - a[1]);
     
     const total = answers.length;
-    const maxCount = Math.max(...Object.values(stats));
+    const statValues = Object.values(stats);
+    const maxCount = statValues.length > 0 ? Math.max(...statValues) : 0;
     
     let html = `
         <div class="question-stats">
@@ -163,7 +164,15 @@ function generateTextQuestionStats(questionKey, allData) {
     `;
     
     answers.forEach((item, index) => {
-        const date = item.time ? new Date(item.time).toLocaleString('zh-CN') : '未知时间';
+        let date = '未知时间';
+        if (item.time) {
+            try {
+                date = new Date(item.time).toLocaleString('zh-CN');
+            } catch (e) {
+                console.warn('日期解析失败:', item.time, e);
+                date = item.time; // 使用原始值
+            }
+        }
         html += `
             <div class="text-answer-item">
                 <div><strong>回答 ${index + 1}:</strong></div>

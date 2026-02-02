@@ -1,11 +1,30 @@
-// 获取当前页面的URL
-function getCurrentURL() {
-    return window.location.href;
+// 创建 JSONBin.io API headers
+function createJSONBinHeaders(config) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (config.apiKey && config.apiKey !== 'YOUR_API_KEY') {
+        headers['X-Master-Key'] = config.apiKey;
+    }
+    return headers;
+}
+
+// 添加二维码提示文字
+function addQRCodeTip(container) {
+    const tip = document.createElement('p');
+    tip.style.marginTop = '15px';
+    tip.style.color = '#6c757d';
+    tip.style.fontSize = '14px';
+    tip.textContent = '扫描二维码即可打开此问卷页面';
+    container.appendChild(tip);
 }
 
 // 使用在线API生成二维码（备用方案）
 function generateQRCodeWithAPI(url) {
     const qrContainer = document.getElementById('qrCode');
+    if (!qrContainer) {
+        console.error('二维码容器未找到');
+        return;
+    }
+    
     const encodedURL = encodeURIComponent(url);
     
     // 使用在线二维码API服务
@@ -20,43 +39,15 @@ function generateQRCodeWithAPI(url) {
     img.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
     
     img.onload = function() {
-        console.log('使用在线API生成二维码成功');
         qrContainer.innerHTML = '';
         qrContainer.appendChild(img);
-        
-        // 添加提示文字
-        const tip = document.createElement('p');
-        tip.style.marginTop = '15px';
-        tip.style.color = '#6c757d';
-        tip.style.fontSize = '14px';
-        tip.textContent = '扫描二维码即可打开此问卷页面';
-        qrContainer.appendChild(tip);
+        addQRCodeTip(qrContainer);
     };
     
     img.onerror = function() {
         console.error('在线API生成二维码失败');
         qrContainer.innerHTML = '<p style="color: red; padding: 20px;">二维码生成失败<br>请检查网络连接后重试</p>';
     };
-}
-
-// 检查并等待QRCode库加载
-function waitForQRCode(callback, maxAttempts = 15) {
-    if (typeof QRCode !== 'undefined') {
-        callback();
-        return;
-    }
-    
-    if (maxAttempts <= 0) {
-        console.warn('QRCode库加载超时，使用在线API备用方案');
-        return 'fallback';
-    }
-    
-    setTimeout(() => {
-        const result = waitForQRCode(callback, maxAttempts - 1);
-        if (result === 'fallback' && maxAttempts === 1) {
-            return 'fallback';
-        }
-    }, 200);
 }
 
 // 生成二维码
@@ -68,8 +59,15 @@ function generateQRCode() {
         return;
     }
     
-    const currentURL = getCurrentURL();
-    console.log('正在生成二维码，URL:', currentURL);
+    // 如果是管理页，生成问卷页面的二维码；否则生成当前页面
+    let targetURL;
+    if (window.location.pathname.includes('admin.html')) {
+        // 管理页：生成问卷页面的二维码
+        targetURL = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+    } else {
+        // 问卷页：生成当前页面二维码
+        targetURL = window.location.href;
+    }
     
     // 显示加载提示
     qrContainer.innerHTML = '<p style="color: #667eea; padding: 20px;">正在生成二维码...</p>';
@@ -86,7 +84,7 @@ function generateQRCode() {
             qrContainer.appendChild(canvas);
             
             try {
-                QRCode.toCanvas(canvas, currentURL, {
+                QRCode.toCanvas(canvas, targetURL, {
                     width: 256,
                     height: 256,
                     margin: 2,
@@ -99,27 +97,19 @@ function generateQRCode() {
                     if (error) {
                         console.error('QRCode库生成失败，使用备用方案:', error);
                         useFallback = true;
-                        generateQRCodeWithAPI(currentURL);
+                        generateQRCodeWithAPI(targetURL);
                     } else {
-                        console.log('二维码生成成功（使用QRCode库）');
-                        // 添加提示文字
-                        const tip = document.createElement('p');
-                        tip.style.marginTop = '15px';
-                        tip.style.color = '#6c757d';
-                        tip.style.fontSize = '14px';
-                        tip.textContent = '扫描二维码即可打开此问卷页面';
-                        qrContainer.appendChild(tip);
+                        addQRCodeTip(qrContainer);
                     }
                 });
             } catch (error) {
                 console.error('生成二维码时发生错误，使用备用方案:', error);
                 useFallback = true;
-                generateQRCodeWithAPI(currentURL);
+                generateQRCodeWithAPI(targetURL);
             }
         } else {
             // 直接使用在线API
-            console.log('使用在线API生成二维码');
-            generateQRCodeWithAPI(currentURL);
+            generateQRCodeWithAPI(targetURL);
         }
     };
     
@@ -134,7 +124,7 @@ function generateQRCode() {
         } else if (attempts >= maxAttempts) {
             console.log('QRCode库加载超时，使用在线API备用方案');
             useFallback = true;
-            generateQRCodeWithAPI(currentURL);
+            generateQRCodeWithAPI(targetURL);
         } else {
             setTimeout(checkAndGenerate, 200);
         }
@@ -144,7 +134,7 @@ function generateQRCode() {
 }
 
 // 处理表单提交
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     event.preventDefault();
     
     const form = event.target;
@@ -152,35 +142,24 @@ function handleFormSubmit(event) {
     const data = {};
     
     // 收集表单数据
-    for (let [key, value] of formData.entries()) {
-        if (data[key]) {
-            // 处理多选（checkbox）
-            if (Array.isArray(data[key])) {
-                data[key].push(value);
-            } else {
-                data[key] = [data[key], value];
-            }
-        } else {
-            data[key] = value;
-        }
-    }
-    
-    // 处理多选框（需要单独处理，因为FormData可能不会正确处理多个同名值）
-    const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+    // FormData 会为每个选中的 checkbox 创建一个条目，需要手动合并多选框的值
     const multiSelectFields = ['channels', 'considerations', 'scenarios', 'selling_points', 
                                'gift_scenarios', 'customization', 'online_services'];
     
-    checkboxes.forEach(checkbox => {
-        const name = checkbox.name;
-        if (multiSelectFields.includes(name)) {
-            if (!data[name] || !Array.isArray(data[name])) {
-                data[name] = [];
+    for (let [key, value] of formData.entries()) {
+        if (multiSelectFields.includes(key)) {
+            // 多选框：收集所有选中的值
+            if (!data[key]) {
+                data[key] = [];
             }
-            if (!data[name].includes(checkbox.value)) {
-                data[name].push(checkbox.value);
+            if (!data[key].includes(value)) {
+                data[key].push(value);
             }
+        } else {
+            // 单选或其他字段：直接赋值（后面的值会覆盖前面的，但通常只有一个）
+            data[key] = value;
         }
-    });
+    }
     
     // 验证必填字段
     const requiredFields = form.querySelectorAll('[required]');
@@ -188,11 +167,16 @@ function handleFormSubmit(event) {
     requiredFields.forEach(field => {
         if (field.type === 'checkbox' || field.type === 'radio') {
             const group = form.querySelectorAll(`[name="${field.name}"]:checked`);
+            const formGroup = field.closest('.form-group');
             if (group.length === 0) {
                 isValid = false;
-                field.closest('.form-group').style.border = '2px solid #e74c3c';
+                if (formGroup) {
+                    formGroup.style.border = '2px solid #e74c3c';
+                }
             } else {
-                field.closest('.form-group').style.border = 'none';
+                if (formGroup) {
+                    formGroup.style.border = 'none';
+                }
             }
         } else {
             if (!field.value.trim()) {
@@ -212,31 +196,10 @@ function handleFormSubmit(event) {
     // 添加提交时间戳
     data.submitTime = new Date().toISOString();
     
-    // 存储数据到localStorage
-    saveSurveyData(data);
+    // 存储数据到localStorage和服务器
+    await saveSurveyData(data);
     
-    // 显示提交的数据（在实际应用中，这里应该发送到服务器）
-    console.log('提交的数据:', data);
-    
-    // 这里可以添加发送到服务器的代码
-    // fetch('/api/submit', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(data)
-    // })
-    // .then(response => response.json())
-    // .then(result => {
-    //     console.log('提交成功:', result);
-    //     showSuccessMessage();
-    // })
-    // .catch(error => {
-    //     console.error('提交失败:', error);
-    //     alert('提交失败，请重试！');
-    // });
-    
-    // 模拟提交成功
+    // 显示成功消息
     showSuccessMessage();
     
     // 3秒后隐藏成功消息并重置表单
@@ -249,13 +212,17 @@ function handleFormSubmit(event) {
 // 显示成功消息
 function showSuccessMessage() {
     const successMessage = document.getElementById('successMessage');
-    successMessage.classList.remove('hidden');
+    if (successMessage) {
+        successMessage.classList.remove('hidden');
+    }
 }
 
 // 隐藏成功消息
 function hideSuccessMessage() {
     const successMessage = document.getElementById('successMessage');
-    successMessage.classList.add('hidden');
+    if (successMessage) {
+        successMessage.classList.add('hidden');
+    }
 }
 
 // 生成本地访客ID（用于UV统计）
@@ -269,12 +236,17 @@ function getOrCreateVisitorId() {
     return id;
 }
 
-
-
-// JSONBin.io 配置（国内可用）
+// JSONBin.io 配置
 const JSONBIN_CONFIG = {
     binId: '69809e56ae596e708f0b707a',  // 替换为你的 Bin ID
     apiKey: '$2a$10$wZM8M2FLStDM/jOePGCaPujxbODc31Mj8iKM3dWy3lAoRNG0gfDbK', // 可选，如果注册了账号
+    baseUrl: 'https://api.jsonbin.io/v3/b'
+};
+
+// 访问统计 Bin 配置（PV/UV）
+const VISIT_BIN_CONFIG = {
+    binId: '6980b674d0ea881f409b417e',  // 访问统计 Bin ID
+    apiKey: '$2a$10$wZM8M2FLStDM/jOePGCaPujxbODc31Mj8iKM3dWy3lAoRNG0gfDbK', // 完整的 API Key
     baseUrl: 'https://api.jsonbin.io/v3/b'
 };
 
@@ -285,21 +257,14 @@ async function saveSurveyData(data) {
         let allData = JSON.parse(localStorage.getItem('surveyData') || '[]');
         allData.push(data);
         localStorage.setItem('surveyData', JSON.stringify(allData));
-        console.log('数据已保存到本地存储，共', allData.length, '条记录');
     } catch (error) {
         console.error('保存到本地存储失败:', error);
     }
     
-    // 保存到 JSONBin.io（国内可用）
+    // 保存到 JSONBin.io
     if (JSONBIN_CONFIG.binId && JSONBIN_CONFIG.binId !== 'YOUR_BIN_ID') {
         try {
-            // 先获取现有数据
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            if (JSONBIN_CONFIG.apiKey && JSONBIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
-                headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
-            }
+            const headers = createJSONBinHeaders(JSONBIN_CONFIG);
             
             // 获取现有数据
             const getResponse = await fetch(`${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}/latest`, {
@@ -310,14 +275,17 @@ async function saveSurveyData(data) {
             let allData = [];
             if (getResponse.ok) {
                 const result = await getResponse.json();
-                allData = result.record || [];
+                const record = result.record || [];
+                // 确保是数组
+                allData = Array.isArray(record) ? record : [];
+            } else {
+                // 如果获取失败，从空数组开始
+                console.warn('获取现有数据失败，从空数组开始');
+                allData = [];
             }
             
-            // 添加新数据
-            allData.push({
-                ...data,
-                submitTime: new Date().toISOString()
-            });
+            // 添加新数据（data中已包含submitTime，直接push）
+            allData.push(data);
             
             // 更新到服务器
             const updateResponse = await fetch(`${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}`, {
@@ -327,7 +295,7 @@ async function saveSurveyData(data) {
             });
             
             if (updateResponse.ok) {
-                console.log('数据已保存到 JSONBin.io 服务器');
+                // 数据已保存成功
             } else {
                 throw new Error('更新失败');
             }
@@ -338,35 +306,14 @@ async function saveSurveyData(data) {
     } else {
         console.warn('JSONBin.io 未配置，数据仅保存到本地');
     }
-    
-    // 如果 Firebase 已初始化，也尝试保存到 Firebase（作为备用）
-    if (window.firebaseDb && window.firebaseInitialized) {
-        try {
-            const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            await addDoc(collection(window.firebaseDb, 'survey_responses'), {
-                data: data,
-                timestamp: serverTimestamp(),
-                createdAt: new Date().toISOString()
-            });
-            console.log('数据已保存到 Firebase 服务器');
-        } catch (error) {
-            // Firebase 失败不影响，因为已经有 JSONBin.io 了
-            console.warn('Firebase 保存失败（可能国内无法访问）:', error);
-        }
-    }
 }
 
 // 获取所有问卷数据（优先从JSONBin.io获取，失败则从本地获取）
 async function getAllSurveyData() {
-    // 优先从 JSONBin.io 获取（国内可用）
+    // 优先从 JSONBin.io 获取
     if (JSONBIN_CONFIG.binId && JSONBIN_CONFIG.binId !== 'YOUR_BIN_ID') {
         try {
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            if (JSONBIN_CONFIG.apiKey && JSONBIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
-                headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
-            }
+            const headers = createJSONBinHeaders(JSONBIN_CONFIG);
             
             const response = await fetch(`${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}/latest`, {
                 method: 'GET',
@@ -375,11 +322,17 @@ async function getAllSurveyData() {
             
             if (response.ok) {
                 const result = await response.json();
-                const allData = result.record || [];
-                console.log('从 JSONBin.io 获取到', allData.length, '条记录');
+                let allData = result.record || [];
+                // 确保返回的是数组
+                if (!Array.isArray(allData)) {
+                    console.warn('JSONBin.io 返回的数据不是数组，重置为空数组');
+                    allData = [];
+                }
                 return allData;
             } else {
-                throw new Error('获取数据失败');
+                const errorText = await response.text().catch(() => '');
+                console.error('JSONBin.io API 错误:', response.status, errorText);
+                throw new Error(`获取数据失败: ${response.status}`);
             }
         } catch (error) {
             console.error('从 JSONBin.io 读取数据失败:', error);
@@ -387,28 +340,9 @@ async function getAllSurveyData() {
         }
     }
     
-    // 如果 JSONBin.io 未配置或读取失败，尝试从 Firebase 获取
-    if (window.firebaseDb && window.firebaseInitialized) {
-        try {
-            const { collection, getDocs, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            const q = query(collection(window.firebaseDb, 'survey_responses'), orderBy('createdAt', 'desc'));
-            const querySnapshot = await getDocs(q);
-            const allData = [];
-            querySnapshot.forEach((doc) => {
-                const docData = doc.data();
-                allData.push(docData.data);
-            });
-            console.log('从 Firebase 获取到', allData.length, '条记录');
-            return allData;
-        } catch (error) {
-            console.warn('从 Firebase 读取数据失败（可能国内无法访问）:', error);
-        }
-    }
-    
-    // 最后从本地存储获取
+    // 从本地存储获取
     try {
         const localData = JSON.parse(localStorage.getItem('surveyData') || '[]');
-        console.log('从本地存储获取到', localData.length, '条记录');
         return localData;
     } catch (error) {
         console.error('读取本地数据失败:', error);
@@ -416,18 +350,12 @@ async function getAllSurveyData() {
     }
 }
 
-// 清空所有数据（用于测试）
+// 清空所有数据
 async function clearAllData() {
-    if (confirm('确定要清空所有问卷数据吗？此操作不可恢复！\n\n注意：这将清空本地数据，Firebase 服务器上的数据需要手动删除。')) {
+    if (confirm('确定要清空所有问卷数据吗？此操作不可恢复！\n\n注意：这将清空本地数据，JSONBin.io 服务器上的数据需要手动删除。')) {
         // 清空本地数据
         localStorage.removeItem('surveyData');
-        
-        // 如果 Firebase 已初始化，提示用户手动删除服务器数据
-        if (window.firebaseDb && window.firebaseInitialized) {
-            alert('本地数据已清空。\n\nFirebase 服务器上的数据需要在 Firebase 控制台中手动删除。');
-        } else {
-            alert('数据已清空');
-        }
+        alert('本地数据已清空。\n\nJSONBin.io 服务器上的数据需要在 JSONBin.io 控制台中手动删除。');
         
         if (window.location.pathname.includes('stats.html')) {
             location.reload();
@@ -526,22 +454,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (generateQRBtn) {
         generateQRBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('二维码按钮被点击');
             generateQRCode();
         });
-        console.log('二维码按钮绑定成功');
-    } else {
-        console.error('生成二维码按钮未找到');
     }
-    
-    // 检查QRCode库是否加载（延迟检查，给库一些加载时间）
-    setTimeout(() => {
-        if (typeof QRCode === 'undefined') {
-            console.warn('QRCode库可能未加载，如果使用file://协议打开，请使用本地服务器运行');
-        } else {
-            console.log('QRCode库已加载');
-        }
-    }, 1000);
     
     // 绑定表单提交事件
     const surveyForm = document.getElementById('surveyForm');
@@ -573,66 +488,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 记录问卷页面访问（PV/UV）
-    trackPageVisit();
+    // 记录问卷页面访问（PV/UV）- 只在问卷页面调用
+    if (document.getElementById('surveyForm')) {
+        trackPageVisit();
+    }
 });
 
-    // 访问统计 Bin 配置（PV/UV）
-    const VISIT_BIN_CONFIG = {
-    binId: '6980b674d0ea881f409b417e',  // 访问统计 Bin ID
-    apiKey: '$2a$10$wZM8M2FLStDM/jOePGCaPujxbODc31Mj8iKM3dWy3lAoRNG0gfDbK', // 完整的 API Key
-    baseUrl: 'https://api.jsonbin.io/v3/b'
-};
-  
-  async function updateVisitCount() {
-    const el = document.getElementById('adminVisitCount');
-    if (!el || !VISIT_BIN_CONFIG.binId || VISIT_BIN_CONFIG.binId === 'YOUR_VISIT_BIN_ID') {
-      return;
-    }
-  
-    try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (VISIT_BIN_CONFIG.apiKey && VISIT_BIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
-        headers['X-Master-Key'] = VISIT_BIN_CONFIG.apiKey;
-      }
-  
-      // 先读出原来的 count
-      const getRes = await fetch(`${VISIT_BIN_CONFIG.baseUrl}/${VISIT_BIN_CONFIG.binId}/latest`, {
-        method: 'GET',
-        headers
-      });
-      let count = 0;
-      if (getRes.ok) {
-        const data = await getRes.json();
-        count = (data.record && typeof data.record.count === 'number') ? data.record.count : 0;
-      }
-  
-      // +1 后写回去
-      const newCount = count + 1;
-      const putRes = await fetch(`${VISIT_BIN_CONFIG.baseUrl}/${VISIT_BIN_CONFIG.binId}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ count: newCount })
-      });
-  
-      if (putRes.ok) {
-        el.textContent = newCount;
-      } else {
-        el.textContent = count; // 写回失败就至少显示旧值
-      }
-    } catch (e) {
-      console.error('更新访问数失败', e);
-    }
-  }
-
-  // 在问卷页面调用：更新 PV / UV
+// 在问卷页面调用：更新 PV / UV
 async function trackPageVisit() {
     if (!VISIT_BIN_CONFIG.binId || VISIT_BIN_CONFIG.binId === 'YOUR_VISIT_BIN_ID') return;
 
-    const headers = { 'Content-Type': 'application/json' };
-    if (VISIT_BIN_CONFIG.apiKey && VISIT_BIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
-        headers['X-Master-Key'] = VISIT_BIN_CONFIG.apiKey;
-    }
+    const headers = createJSONBinHeaders(VISIT_BIN_CONFIG);
 
     const visitorId = getOrCreateVisitorId();
     const uvKey = 'survey_uv_recorded'; // 记录这个浏览器是否已经记过一次UV
@@ -647,10 +513,21 @@ async function trackPageVisit() {
 
         let pv = 0, uv = 0;
         if (getRes.ok) {
-            const data = await getRes.json();
-            const record = data.record || {};
-            pv = typeof record.pv === 'number' ? record.pv : 0;
-            uv = typeof record.uv === 'number' ? record.uv : 0;
+            try {
+                const data = await getRes.json();
+                const record = data.record || {};
+                pv = typeof record.pv === 'number' ? record.pv : 0;
+                uv = typeof record.uv === 'number' ? record.uv : 0;
+            } catch (parseError) {
+                console.error('解析访问统计数据失败:', parseError);
+                pv = 0;
+                uv = 0;
+            }
+        } else {
+            // 如果获取失败，从0开始
+            console.warn('获取访问统计失败，从0开始');
+            pv = 0;
+            uv = 0;
         }
 
         // 更新计数
@@ -681,10 +558,7 @@ async function fetchVisitStats() {
     const elUv = document.getElementById('adminUV');
     if (!elPv || !elUv || !VISIT_BIN_CONFIG.binId || VISIT_BIN_CONFIG.binId === 'YOUR_VISIT_BIN_ID') return;
 
-    const headers = { 'Content-Type': 'application/json' };
-    if (VISIT_BIN_CONFIG.apiKey && VISIT_BIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
-        headers['X-Master-Key'] = VISIT_BIN_CONFIG.apiKey;
-    }
+    const headers = createJSONBinHeaders(VISIT_BIN_CONFIG);
 
     try {
         const res = await fetch(`${VISIT_BIN_CONFIG.baseUrl}/${VISIT_BIN_CONFIG.binId}/latest`, {

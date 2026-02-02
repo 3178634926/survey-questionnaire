@@ -277,9 +277,7 @@
         loadQRCodeLibrary();
     </script>
 
-    <!-- 复用主站逻辑：generateQRCode / getAllSurveyData / updateVisitCount 等 -->
-    <script src="script.js"></script>
-
+    <!-- 复用主站逻辑：generateQRCode / getAllSurveyData / fetchVisitStats 等 -->
     <script src="script.js"></script>
 
 <script>
@@ -289,13 +287,19 @@
             try {
                 const allData = await getAllSurveyData();
                 const totalCountEl = document.getElementById('adminTotalCount');
-                if (Array.isArray(allData)) {
-                    totalCountEl.textContent = allData.length;
-                } else {
-                    totalCountEl.textContent = '-';
+                if (totalCountEl) {
+                    if (Array.isArray(allData)) {
+                        totalCountEl.textContent = allData.length;
+                    } else {
+                        totalCountEl.textContent = '-';
+                    }
                 }
             } catch (e) {
                 console.error('获取参与人数失败', e);
+                const totalCountEl = document.getElementById('adminTotalCount');
+                if (totalCountEl) {
+                    totalCountEl.textContent = '-';
+                }
             }
         }
 
