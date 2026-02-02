@@ -260,8 +260,8 @@ function hideSuccessMessage() {
 
 // JSONBin.io 配置（国内可用）
 const JSONBIN_CONFIG = {
-    binId: 'YOUR_BIN_ID',  // 替换为你的 Bin ID
-    apiKey: 'YOUR_API_KEY', // 可选，如果注册了账号
+    binId: '69809e56ae596e708f0b707a',  // 替换为你的 Bin ID
+    apiKey: '$2a$10$wZM8M2FLStDM/jOePGCaPujxbODc31Mj8iKM3dWy3lAoRNG0gfDbK', // 可选，如果注册了账号
     baseUrl: 'https://api.jsonbin.io/v3/b'
 };
 
