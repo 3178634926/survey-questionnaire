@@ -203,11 +203,17 @@
                 <span class="stat-icon">👀</span>
                 <div class="stat-text">
                     <div class="stat-label">访问次数</div>
-                    <div id="adminVisitCount" class="stat-value">0</div>
+                    <div id="adminPV" class="stat-value">0</div>
+                </div>
+            </div>
+            <div class="admin-stat-item visits">
+                <span class="stat-icon">🧍</span>
+                <div class="stat-text">
+                    <div class="stat-label">访问人数</div>
+                    <div id="adminUV" class="stat-value">0</div>
                 </div>
             </div>
         </div>
-
         <section class="admin-actions">
             <button id="generateQR" class="qr-btn">
                 📱 生成问卷二维码
@@ -274,33 +280,34 @@
     <!-- 复用主站逻辑：generateQRCode / getAllSurveyData / updateVisitCount 等 -->
     <script src="script.js"></script>
 
-    <script>
-        // 管理页初始化：填充参与人数和访问次数
-        document.addEventListener('DOMContentLoaded', async function () {
-            // 1）填充参与人数
-            if (typeof getAllSurveyData === 'function') {
-                try {
-                    const allData = await getAllSurveyData();
-                    const totalCountEl = document.getElementById('adminTotalCount');
-                    if (Array.isArray(allData)) {
-                        totalCountEl.textContent = allData.length;
-                    } else {
-                        totalCountEl.textContent = '-';
-                    }
-                } catch (e) {
-                    console.error('获取参与人数失败', e);
-                }
-            }
+    <script src="script.js"></script>
 
-            // 2）更新访问次数（如果你在 script.js 里实现了 updateVisitCount）
-            if (typeof updateVisitCount === 'function') {
-                try {
-                    await updateVisitCount(); // 内部会自己写入 adminVisitCount
-                } catch (e) {
-                    console.error('更新访问次数失败', e);
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        // 1）参与人数（问卷提交数）
+        if (typeof getAllSurveyData === 'function') {
+            try {
+                const allData = await getAllSurveyData();
+                const totalCountEl = document.getElementById('adminTotalCount');
+                if (Array.isArray(allData)) {
+                    totalCountEl.textContent = allData.length;
+                } else {
+                    totalCountEl.textContent = '-';
                 }
+            } catch (e) {
+                console.error('获取参与人数失败', e);
             }
-        });
-    </script>
+        }
+
+        // 2）访问 PV / UV
+        if (typeof fetchVisitStats === 'function') {
+            try {
+                await fetchVisitStats();
+            } catch (e) {
+                console.error('获取访问统计失败', e);
+            }
+        }
+    });
+</script>
 </body>
 </html>
