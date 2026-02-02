@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - Fleur de Fruits 调查问卷</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: linear-gradient(135deg, #ffffff 0%, #fffafb 50%, #fef5f7 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            padding-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #ffb6c1 0%, #dda0dd 50%, #c5b8f0 100%);
+            color: #fff;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .admin-title {
+            font-size: 1.9em;
+            font-weight: 700;
+        }
+
+        .admin-subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .admin-actions {
+            padding: 30px 40px 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .admin-actions .qr-btn,
+        .admin-actions .stats-btn,
+        .admin-actions .back-btn {
+            padding: 12px 28px;
+            border-radius: 999px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
+        }
+
+        .admin-actions .qr-btn {
+            background: linear-gradient(135deg, #ffb6c1 0%, #dda0dd 50%, #c5b8f0 100%);
+            color: #fff;
+        }
+
+        .admin-actions .stats-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .admin-actions .back-btn {
+            background: #6c757d;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .admin-actions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .admin-actions button:active {
+            transform: translateY(0);
+        }
+
+        .admin-main {
+            padding: 10px 40px 30px;
+        }
+
+        .admin-section-title {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #6b4c7a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-section-title span.icon {
+            font-size: 1.3em;
+        }
+
+        .admin-qr-wrapper {
+            background: linear-gradient(135deg, #fff5f8 0%, #fef0f5 50%, #f8f0ff 100%);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255, 182, 193, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-qr-tips {
+            font-size: 0.9em;
+            color: #6c757d;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .qr-container {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="admin-title">📊 管理后台</div>
+            <div class="admin-subtitle">
+                Fleur de Fruits 法式鲜果花艺工作室 · 问卷二维码 & 统计结果入口（请勿公开此页面）
+            </div>
+        </header>
+
+        <div class="admin-stats-bar">
+            <div class="stat-item">
+              <span class="label">参与人数</span>
+              <span id="adminTotalCount" class="value">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">访问次数</span>
+              <span id="adminVisitCount" class="value">-</span>
+            </div>
+          </div>
+
+        <section class="admin-actions">
+            <button id="generateQR" class="qr-btn">
+                📱 生成问卷二维码
+            </button>
+            <button class="stats-btn" onclick="window.location.href='stats.html'">
+                📊 查看统计结果
+            </button>
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                ← 返回问卷页面
+            </button>
+        </section>
+
+        <main class="admin-main">
+            <div class="admin-section-title">
+                <span class="icon">🔗</span>
+                <span>问卷分享二维码</span>
+            </div>
+            <div class="admin-qr-wrapper">
+                <div id="qrCode" class="qr-container"></div>
+                <div class="admin-qr-tips">
+                    点击上方「生成问卷二维码」按钮，将自动为问卷页面生成二维码。<br>
+                    可用于：微信/朋友圈分享、线下扫码填写、门店物料打印等。
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 尝试多个 CDN 源加载 QRCode 库（复用你 index.html 里的逻辑，如果有的话可以粘过来） -->
+    <script>
+        function loadQRCodeLibrary() {
+            const cdnSources = [
+                'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
+                'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js'
+            ];
+
+            let currentIndex = 0;
+
+            function tryLoadNext() {
+                if (currentIndex >= cdnSources.length) {
+                    console.warn('所有 QRCode CDN 源加载失败，将使用在线API备用方案（如果已配置）');
+                    window.QRCodeFallback = true;
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = cdnSources[currentIndex];
+                script.onload = function () {
+                    console.log('QRCode库加载成功，来源:', cdnSources[currentIndex]);
+                };
+                script.onerror = function () {
+                    console.warn('CDN源加载失败:', cdnSources[currentIndex]);
+                    currentIndex++;
+                    tryLoadNext();
+                };
+                document.head.appendChild(script);
+            }
+
+            tryLoadNext();
+        }
+
+        loadQRCodeLibrary();
+    </script>
+
+    <!-- 复用主站的逻辑（包含 generateQRCode、JSONBin 相关等） -->
+    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+          // 1）总参与人数
+          const allData = await getAllSurveyData();
+          const totalCountEl = document.getElementById('adminTotalCount');
+          if (Array.isArray(allData)) {
+            totalCountEl.textContent = allData.length;
+          } else {
+            totalCountEl.textContent = '-';
+          }
+      
+          // 2）访问次数（下面单独说明如何实现）
+          updateVisitCount();
+        });
+      </script>
+</body>
+</html>

@@ -560,3 +560,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+const VISIT_BIN_CONFIG = {
+    binId: '69809e56ae596e708f0b707a',  // 替换为你的 Bin ID
+    apiKey: '$2a$10$wZM8M2FLStDM/jOePGCaPujxbODc31Mj8iKM3dWy3lAoRNG0gfDbK', // 可选，如果注册了账号
+    baseUrl: 'https://api.jsonbin.io/v3/b'
+  };
+  
+  async function updateVisitCount() {
+    const el = document.getElementById('adminVisitCount');
+    if (!el || !VISIT_BIN_CONFIG.binId || VISIT_BIN_CONFIG.binId === 'YOUR_VISIT_BIN_ID') {
+      return;
+    }
+  
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (VISIT_BIN_CONFIG.apiKey && VISIT_BIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
+        headers['X-Master-Key'] = VISIT_BIN_CONFIG.apiKey;
+      }
+  
+      // 先读出原来的 count
+      const getRes = await fetch(`${VISIT_BIN_CONFIG.baseUrl}/${VISIT_BIN_CONFIG.binId}/latest`, {
+        method: 'GET',
+        headers
+      });
+      let count = 0;
+      if (getRes.ok) {
+        const data = await getRes.json();
+        count = (data.record && typeof data.record.count === 'number') ? data.record.count : 0;
+      }
+  
+      // +1 后写回去
+      const newCount = count + 1;
+      const putRes = await fetch(`${VISIT_BIN_CONFIG.baseUrl}/${VISIT_BIN_CONFIG.binId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ count: newCount })
+      });
+  
+      if (putRes.ok) {
+        el.textContent = newCount;
+      } else {
+        el.textContent = count; // 写回失败就至少显示旧值
+      }
+    } catch (e) {
+      console.error('更新访问数失败', e);
+    }
+  }
