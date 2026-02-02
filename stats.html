@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问卷统计结果 - Fleur de Fruits</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .stats-header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .stats-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .stats-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question-stats {
+            margin-bottom: 40px;
+        }
+        
+        .question-stats h3 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .answer-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .answer-label {
+            flex: 1;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .answer-count {
+            min-width: 60px;
+            text-align: right;
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 15px;
+        }
+        
+        .answer-bar {
+            flex: 2;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .answer-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .answer-percentage {
+            min-width: 50px;
+            text-align: right;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .no-data-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .export-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .text-answers {
+            margin-top: 15px;
+        }
+        
+        .text-answer-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #667eea;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .text-answer-item .time {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stats-container">
+        <div class="stats-header">
+            <h1>📊 问卷统计结果</h1>
+            <p>Fleur de Fruits 法式鲜果花艺工作室 · 品牌调研数据分析</p>
+            <div class="stats-info" id="statsInfo">
+                <!-- 动态生成统计信息 -->
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn back-btn" onclick="window.location.href='index.html'">← 返回问卷</button>
+            <button class="action-btn export-btn" onclick="exportData()">📥 导出数据</button>
+            <button class="action-btn clear-btn" onclick="clearAllData()">🗑️ 清空数据</button>
+        </div>
+        
+        <div class="stats-content" id="statsContent">
+            <!-- 动态生成统计内容 -->
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script src="stats.js"></script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleur de Fruits 法式鲜果花艺工作室 - 品牌调研问卷</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 背景装饰元素 -->
+    <div class="bg-decoration">
+        <span class="decoration-item">🌹</span>
+        <span class="decoration-item">🌸</span>
+        <span class="decoration-item">🌺</span>
+        <span class="decoration-item">🍓</span>
+        <span class="decoration-item">🍇</span>
+        <span class="decoration-item">🍊</span>
+        <span class="decoration-item">🥝</span>
+        <span class="decoration-item">🍑</span>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>🌸 Fleur de Fruits</h1>
+            <p class="subtitle">法式鲜果花艺工作室 · 高端客群前期品牌调研问卷</p>
+        </header>
+
+        <!-- 问卷扉页 -->
+        <section class="intro-section">
+            <div class="intro-content">
+                <h2>致追求生活美学的你：</h2>
+                <p>Fleur de Fruits——以法式花艺匠心雕琢鲜果本味，致力于为懂生活的人，打造「可食用的鲜果艺术品」。这份调研，旨在聆听你的精致需求，让我们的每一份出品，都契合你对品质生活的期待。</p>
+                <div class="reward-info">
+                    <p>✨ 完成此问卷的你，可凭截图兑换一份价值<strong>9.9元</strong>的品尝礼盒！</p>
+                    <p>✨ 填写完成后，可添加专属客服微信，开业时额外尊享「VIP首单7折」+「定制法式鲜果花束礼盒」体验资格。</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="qr-section">
+            <div class="button-group">
+                <button id="generateQR" class="qr-btn">生成二维码</button>
+                <button id="viewStats" class="stats-btn" onclick="window.location.href='stats.html'">📊 查看统计结果</button>
+            </div>
+            <div id="qrCode" class="qr-container"></div>
+        </div>
+
+        <form id="surveyForm" class="survey-form">
+            <!-- 一、品质生活消费洞察 -->
+            <section class="form-section">
+                <h2>一、品质生活消费洞察</h2>
+
+                <div class="form-group">
+                    <label>1. 你日常购买鲜切水果或轻奢轻食的频率是？<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="frequency" value="几乎不买，更偏爱自制" required>
+                            <span>几乎不买，更偏爱自制</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="frequency" value="偶尔（每月1-2次），用于特殊场景" required>
+                            <span>偶尔（每月1-2次），用于特殊场景</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="frequency" value="每周1-2次，作为日常品质补给" required>
+                            <span>每周1-2次，作为日常品质补给</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="frequency" value="每周3次以上，注重便捷与精致兼具" required>
+                            <span>每周3次以上，注重便捷与精致兼具</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>2. 你选择鲜切水果/轻奢轻食的核心考量因素是？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="considerations" value="食材原产地与新鲜度" required>
+                            <span>食材原产地与新鲜度</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="considerations" value="无添加的健康品质">
+                            <span>无添加的健康品质</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="considerations" value="颜值与美学设计感">
+                            <span>颜值与美学设计感</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="considerations" value="品牌调性与体验感">
+                            <span>品牌调性与体验感</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="considerations" value="定制化服务能力">
+                            <span>定制化服务能力</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="considerations" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="considerations_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+
+                <div class="form-group">
+                    <label>3. 你能接受的单次轻奢鲜切水果消费预算是？<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="budget" value="30-50元" required>
+                            <span>30-50元</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="budget" value="51-80元" required>
+                            <span>51-80元</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="budget" value="81-120元" required>
+                            <span>81-120元</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="budget" value="120元以上" required>
+                            <span>120元以上</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>4. 你购买鲜切水果/轻奢轻食的主要场景是？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scenarios" value="商务下午茶/客户伴手礼" required>
+                            <span>商务下午茶/客户伴手礼</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scenarios" value="私宴/家庭聚会餐后甜点">
+                            <span>私宴/家庭聚会餐后甜点</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scenarios" value="节日送礼（生日/纪念日/商务答谢等）">
+                            <span>节日送礼（生日/纪念日/商务答谢等）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scenarios" value="健身/轻食主义日常代餐">
+                            <span>健身/轻食主义日常代餐</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scenarios" value="闺蜜小聚/个人独处的仪式感时光">
+                            <span>闺蜜小聚/个人独处的仪式感时光</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="scenarios" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="scenarios_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+            </section>
+
+            <!-- 二、法式鲜果花艺品牌偏好 -->
+            <section class="form-section">
+                <h2>二、法式鲜果花艺品牌偏好</h2>
+
+                <div class="form-group">
+                    <label>5. 你对「法式鲜果花艺」这一轻奢生活概念的感兴趣程度是？<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="interest" value="非常感兴趣，愿意主动尝试" required>
+                            <span>非常感兴趣，愿意主动尝试</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="interest" value="比较感兴趣，期待了解更多" required>
+                            <span>比较感兴趣，期待了解更多</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="interest" value="一般，需看具体产品呈现" required>
+                            <span>一般，需看具体产品呈现</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="interest" value="不太感兴趣，更偏爱传统形式" required>
+                            <span>不太感兴趣，更偏爱传统形式</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="interest" value="完全不感兴趣" required>
+                            <span>完全不感兴趣</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>6. 以下品牌卖点中，最能吸引你选择Fleur de Fruits的是？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="selling_points" value="当季珍稀鲜果直供，每日现切零添加" required>
+                            <span>当季珍稀鲜果直供，每日现切零添加</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="selling_points" value="法式花艺师手工造型，每一份都是独版艺术品">
+                            <span>法式花艺师手工造型，每一份都是独版艺术品</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="selling_points" value="高级定制包装（烫金礼盒/丝带花艺装饰）">
+                            <span>高级定制包装（烫金礼盒/丝带花艺装饰）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="selling_points" value="专属场景定制（商务宴/生日会/求婚等主题）">
+                            <span>专属场景定制（商务宴/生日会/求婚等主题）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="selling_points" value="搭配法式甜点/手冲咖啡的轻奢套餐">
+                            <span>搭配法式甜点/手冲咖啡的轻奢套餐</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="selling_points" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="selling_points_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+
+                <div class="form-group">
+                    <label>7. 若推出「法式鲜果花束」伴手礼，你更倾向于在哪些场景选购？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gift_scenarios" value="商务答谢/客户拜访" required>
+                            <span>商务答谢/客户拜访</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gift_scenarios" value="高端生日宴/纪念日惊喜">
+                            <span>高端生日宴/纪念日惊喜</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gift_scenarios" value="婚礼伴手礼/宝宝宴回礼">
+                            <span>婚礼伴手礼/宝宝宴回礼</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gift_scenarios" value="探病/乔迁等人情往来">
+                            <span>探病/乔迁等人情往来</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gift_scenarios" value="日常赠予亲友的心意之选">
+                            <span>日常赠予亲友的心意之选</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gift_scenarios" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="gift_scenarios_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+
+                <div class="form-group">
+                    <label>8. 你更偏爱哪种法式门店风格？<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="store_style" value="南法庄园风（原木+绿植+复古花砖，慵懒惬意）" required>
+                            <span>南法庄园风（原木+绿植+复古花砖，慵懒惬意）</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="store_style" value="巴黎轻奢风（香槟金+磨砂玻璃+艺术花艺装置，精致高级）" required>
+                            <span>巴黎轻奢风（香槟金+磨砂玻璃+艺术花艺装置，精致高级）</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="store_style" value="现代极简风（奶油白+线条感设计+鲜果艺术陈列，简约大气）" required>
+                            <span>现代极简风（奶油白+线条感设计+鲜果艺术陈列，简约大气）</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="store_style" value="复古法式风（雕花家具+暖黄灯光+油画装饰，浪漫复古）" required>
+                            <span>复古法式风（雕花家具+暖黄灯光+油画装饰，浪漫复古）</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="store_style" value="其他" required>
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="store_style_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+            </section>
+
+            <!-- 三、高端服务需求调研 -->
+            <section class="form-section">
+                <h2>三、高端服务需求调研</h2>
+
+                <div class="form-group">
+                    <label>9. 你对法式鲜果花艺的定制化服务有哪些期待？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="customization" value="水果品类专属定制（如进口车厘子/阳光玫瑰等限定款）" required>
+                            <span>水果品类专属定制（如进口车厘子/阳光玫瑰等限定款）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="customization" value="花束造型个性化设计（如星座/字母/主题造型）">
+                            <span>花束造型个性化设计（如星座/字母/主题造型）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="customization" value="礼盒刻字/专属贺卡定制">
+                            <span>礼盒刻字/专属贺卡定制</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="customization" value="定时配送（如生日零点/商务会议精准时段送达）">
+                            <span>定时配送（如生日零点/商务会议精准时段送达）</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="customization" value="一对一专属花艺师咨询服务">
+                            <span>一对一专属花艺师咨询服务</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="customization" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="customization_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+
+                <div class="form-group">
+                    <label>10. 你更倾向于通过哪些渠道了解高端轻食品牌？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="channels" value="小红书/抖音的生活美学博主推荐" required>
+                            <span>小红书/抖音的生活美学博主推荐</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="channels" value="高端商场/写字楼的线下体验店">
+                            <span>高端商场/写字楼的线下体验店</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="channels" value="私域社群/好友圈层推荐">
+                            <span>私域社群/好友圈层推荐</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="channels" value="时尚生活类杂志/公众号">
+                            <span>时尚生活类杂志/公众号</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="channels" value="五星级酒店/高端会所合作推广">
+                            <span>五星级酒店/高端会所合作推广</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="channels" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="channels_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+
+                <div class="form-group">
+                    <label>11. 若开通线上预订服务，你最关注的核心服务是？（可多选）<span class="required">*</span></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="online_services" value="冷链保鲜配送，确保口感与颜值" required>
+                            <span>冷链保鲜配送，确保口感与颜值</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="online_services" value="配送人员着装规范与服务礼仪">
+                            <span>配送人员着装规范与服务礼仪</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="online_services" value="预订系统的便捷性与隐私保护">
+                            <span>预订系统的便捷性与隐私保护</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="online_services" value="会员专属折扣与积分礼遇">
+                            <span>会员专属折扣与积分礼遇</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="online_services" value="售后即时响应与问题处理">
+                            <span>售后即时响应与问题处理</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="online_services" value="其他">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                    <input type="text" name="online_services_other" placeholder="如选择其他，请填写" class="other-input">
+                </div>
+            </section>
+
+            <!-- 四、精致生活提案征集 -->
+            <section class="form-section">
+                <h2>四、精致生活提案征集</h2>
+
+                <div class="form-group">
+                    <label for="expectations">12. 对于Fleur de Fruits法式鲜果花艺工作室，你还有哪些期待或个性化需求？</label>
+                    <textarea id="expectations" name="expectations" rows="6" placeholder="请详细表述您的期待或个性化需求..."></textarea>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">提交问卷</button>
+                <button type="reset" class="reset-btn">重置表单</button>
+            </div>
+        </form>
+
+        <!-- 问卷尾页 -->
+        <section class="outro-section">
+            <div class="outro-content">
+                <h2>感谢你的深度参与</h2>
+                <p>每一条建议，都是我们打磨品质的方向。</p>
+                <p>我们将在开业前，为你发送专属邀请函，敬请期待一场「鲜果与法式浪漫」的邂逅。</p>
+            </div>
+        </section>
+
+        <div id="successMessage" class="success-message hidden">
+            <div class="success-content">
+                <span class="success-icon">✓</span>
+                <h3>提交成功！</h3>
+                <p>感谢您完成本次调查问卷，您的反馈对我们非常重要！</p>
+                <p style="margin-top: 15px; font-size: 14px; color: #667eea;">✨ 请保存提交截图，凭截图兑换价值9.9元的品尝礼盒！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 尝试多个CDN源加载QRCode库 -->
+    <script>
+        // 尝试加载QRCode库，如果失败则使用备用方案
+        function loadQRCodeLibrary() {
+            const cdnSources = [
+                'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
+                'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+                'https://cdn.bootcdn.net/ajax/libs/qrcode/1.5.3/qrcode.min.js'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryLoadNext() {
+                if (currentIndex >= cdnSources.length) {
+                    console.warn('所有CDN源都加载失败，将使用在线API备用方案');
+                    window.QRCodeFallback = true;
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = cdnSources[currentIndex];
+                script.onload = function() {
+                    console.log('QRCode库加载成功，来源:', cdnSources[currentIndex]);
+                };
+                script.onerror = function() {
+                    console.warn('CDN源加载失败:', cdnSources[currentIndex]);
+                    currentIndex++;
+                    tryLoadNext();
+                };
+                document.head.appendChild(script);
+            }
+            
+            tryLoadNext();
+        }
+        
+        loadQRCodeLibrary();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
