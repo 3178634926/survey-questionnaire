@@ -258,33 +258,164 @@ function hideSuccessMessage() {
     successMessage.classList.add('hidden');
 }
 
-// 保存问卷数据到localStorage
-function saveSurveyData(data) {
+// JSONBin.io 配置（国内可用）
+const JSONBIN_CONFIG = {
+    binId: 'YOUR_BIN_ID',  // 替换为你的 Bin ID
+    apiKey: 'YOUR_API_KEY', // 可选，如果注册了账号
+    baseUrl: 'https://api.jsonbin.io/v3/b'
+};
+
+// 保存问卷数据到JSONBin.io和localStorage（双重备份）
+async function saveSurveyData(data) {
+    // 先保存到本地作为备份
     try {
         let allData = JSON.parse(localStorage.getItem('surveyData') || '[]');
         allData.push(data);
         localStorage.setItem('surveyData', JSON.stringify(allData));
         console.log('数据已保存到本地存储，共', allData.length, '条记录');
     } catch (error) {
-        console.error('保存数据失败:', error);
+        console.error('保存到本地存储失败:', error);
+    }
+    
+    // 保存到 JSONBin.io（国内可用）
+    if (JSONBIN_CONFIG.binId && JSONBIN_CONFIG.binId !== 'YOUR_BIN_ID') {
+        try {
+            // 先获取现有数据
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (JSONBIN_CONFIG.apiKey && JSONBIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
+                headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
+            }
+            
+            // 获取现有数据
+            const getResponse = await fetch(`${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}/latest`, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            let allData = [];
+            if (getResponse.ok) {
+                const result = await getResponse.json();
+                allData = result.record || [];
+            }
+            
+            // 添加新数据
+            allData.push({
+                ...data,
+                submitTime: new Date().toISOString()
+            });
+            
+            // 更新到服务器
+            const updateResponse = await fetch(`${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}`, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(allData)
+            });
+            
+            if (updateResponse.ok) {
+                console.log('数据已保存到 JSONBin.io 服务器');
+            } else {
+                throw new Error('更新失败');
+            }
+        } catch (error) {
+            console.error('保存到 JSONBin.io 失败:', error);
+            console.warn('数据已保存到本地，但未同步到服务器');
+        }
+    } else {
+        console.warn('JSONBin.io 未配置，数据仅保存到本地');
+    }
+    
+    // 如果 Firebase 已初始化，也尝试保存到 Firebase（作为备用）
+    if (window.firebaseDb && window.firebaseInitialized) {
+        try {
+            const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            await addDoc(collection(window.firebaseDb, 'survey_responses'), {
+                data: data,
+                timestamp: serverTimestamp(),
+                createdAt: new Date().toISOString()
+            });
+            console.log('数据已保存到 Firebase 服务器');
+        } catch (error) {
+            // Firebase 失败不影响，因为已经有 JSONBin.io 了
+            console.warn('Firebase 保存失败（可能国内无法访问）:', error);
+        }
     }
 }
 
-// 获取所有问卷数据
-function getAllSurveyData() {
+// 获取所有问卷数据（优先从JSONBin.io获取，失败则从本地获取）
+async function getAllSurveyData() {
+    // 优先从 JSONBin.io 获取（国内可用）
+    if (JSONBIN_CONFIG.binId && JSONBIN_CONFIG.binId !== 'YOUR_BIN_ID') {
+        try {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (JSONBIN_CONFIG.apiKey && JSONBIN_CONFIG.apiKey !== 'YOUR_API_KEY') {
+                headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
+            }
+            
+            const response = await fetch(`${JSONBIN_CONFIG.baseUrl}/${JSONBIN_CONFIG.binId}/latest`, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                const allData = result.record || [];
+                console.log('从 JSONBin.io 获取到', allData.length, '条记录');
+                return allData;
+            } else {
+                throw new Error('获取数据失败');
+            }
+        } catch (error) {
+            console.error('从 JSONBin.io 读取数据失败:', error);
+            console.warn('尝试从本地存储读取数据');
+        }
+    }
+    
+    // 如果 JSONBin.io 未配置或读取失败，尝试从 Firebase 获取
+    if (window.firebaseDb && window.firebaseInitialized) {
+        try {
+            const { collection, getDocs, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const q = query(collection(window.firebaseDb, 'survey_responses'), orderBy('createdAt', 'desc'));
+            const querySnapshot = await getDocs(q);
+            const allData = [];
+            querySnapshot.forEach((doc) => {
+                const docData = doc.data();
+                allData.push(docData.data);
+            });
+            console.log('从 Firebase 获取到', allData.length, '条记录');
+            return allData;
+        } catch (error) {
+            console.warn('从 Firebase 读取数据失败（可能国内无法访问）:', error);
+        }
+    }
+    
+    // 最后从本地存储获取
     try {
-        return JSON.parse(localStorage.getItem('surveyData') || '[]');
+        const localData = JSON.parse(localStorage.getItem('surveyData') || '[]');
+        console.log('从本地存储获取到', localData.length, '条记录');
+        return localData;
     } catch (error) {
-        console.error('读取数据失败:', error);
+        console.error('读取本地数据失败:', error);
         return [];
     }
 }
 
 // 清空所有数据（用于测试）
-function clearAllData() {
-    if (confirm('确定要清空所有问卷数据吗？此操作不可恢复！')) {
+async function clearAllData() {
+    if (confirm('确定要清空所有问卷数据吗？此操作不可恢复！\n\n注意：这将清空本地数据，Firebase 服务器上的数据需要手动删除。')) {
+        // 清空本地数据
         localStorage.removeItem('surveyData');
-        alert('数据已清空');
+        
+        // 如果 Firebase 已初始化，提示用户手动删除服务器数据
+        if (window.firebaseDb && window.firebaseInitialized) {
+            alert('本地数据已清空。\n\nFirebase 服务器上的数据需要在 Firebase 控制台中手动删除。');
+        } else {
+            alert('数据已清空');
+        }
+        
         if (window.location.pathname.includes('stats.html')) {
             location.reload();
         }
