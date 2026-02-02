@@ -40,8 +40,59 @@
             opacity: 0.9;
         }
 
+        /* 顶部统计条 */
+        .admin-stat-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 16px 40px 8px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 182, 193, 0.4);
+        }
+
+        .admin-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 250, 251, 0.9);
+        }
+
+        .admin-stat-item.participants {
+            border: 1px solid rgba(255, 182, 193, 0.5);
+        }
+
+        .admin-stat-item.visits {
+            border: 1px solid rgba(173, 216, 230, 0.5);
+        }
+
+        .stat-icon {
+            font-size: 18px;
+        }
+
+        .stat-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8c6b8f;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4b2f63;
+        }
+
         .admin-actions {
-            padding: 30px 40px 10px;
+            padding: 20px 40px 10px;
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
@@ -139,16 +190,23 @@
             </div>
         </header>
 
-        <div class="admin-stats-bar">
-            <div class="stat-item">
-              <span class="label">参与人数</span>
-              <span id="adminTotalCount" class="value">-</span>
+        <!-- 顶部统计条 -->
+        <div class="admin-stat-bar">
+            <div class="admin-stat-item participants">
+                <span class="stat-icon">👥</span>
+                <div class="stat-text">
+                    <div class="stat-label">参与人数</div>
+                    <div id="adminTotalCount" class="stat-value">-</div>
+                </div>
             </div>
-            <div class="stat-item">
-              <span class="label">访问次数</span>
-              <span id="adminVisitCount" class="value">-</span>
+            <div class="admin-stat-item visits">
+                <span class="stat-icon">👀</span>
+                <div class="stat-text">
+                    <div class="stat-label">访问次数</div>
+                    <div id="adminVisitCount" class="stat-value">0</div>
+                </div>
             </div>
-          </div>
+        </div>
 
         <section class="admin-actions">
             <button id="generateQR" class="qr-btn">
@@ -177,7 +235,7 @@
         </main>
     </div>
 
-    <!-- 尝试多个 CDN 源加载 QRCode 库（复用你 index.html 里的逻辑，如果有的话可以粘过来） -->
+    <!-- 加载二维码库（简化版） -->
     <script>
         function loadQRCodeLibrary() {
             const cdnSources = [
@@ -213,23 +271,36 @@
         loadQRCodeLibrary();
     </script>
 
-    <!-- 复用主站的逻辑（包含 generateQRCode、JSONBin 相关等） -->
+    <!-- 复用主站逻辑：generateQRCode / getAllSurveyData / updateVisitCount 等 -->
     <script src="script.js"></script>
 
     <script>
+        // 管理页初始化：填充参与人数和访问次数
         document.addEventListener('DOMContentLoaded', async function () {
-          // 1）总参与人数
-          const allData = await getAllSurveyData();
-          const totalCountEl = document.getElementById('adminTotalCount');
-          if (Array.isArray(allData)) {
-            totalCountEl.textContent = allData.length;
-          } else {
-            totalCountEl.textContent = '-';
-          }
-      
-          // 2）访问次数（下面单独说明如何实现）
-          updateVisitCount();
+            // 1）填充参与人数
+            if (typeof getAllSurveyData === 'function') {
+                try {
+                    const allData = await getAllSurveyData();
+                    const totalCountEl = document.getElementById('adminTotalCount');
+                    if (Array.isArray(allData)) {
+                        totalCountEl.textContent = allData.length;
+                    } else {
+                        totalCountEl.textContent = '-';
+                    }
+                } catch (e) {
+                    console.error('获取参与人数失败', e);
+                }
+            }
+
+            // 2）更新访问次数（如果你在 script.js 里实现了 updateVisitCount）
+            if (typeof updateVisitCount === 'function') {
+                try {
+                    await updateVisitCount(); // 内部会自己写入 adminVisitCount
+                } catch (e) {
+                    console.error('更新访问次数失败', e);
+                }
+            }
         });
-      </script>
+    </script>
 </body>
 </html>
