@@ -15,18 +15,15 @@ const questionMap = {
 };
 
 // 初始化统计页面
-function initStats() {
-    const allData = getAllSurveyData();
-    
-    if (allData.length === 0) {
+async function initStats() {
+    const allData = await getAllSurveyData();
+
+    if (!Array.isArray(allData) || allData.length === 0) {
         showNoData();
         return;
     }
-    
-    // 显示统计信息
+
     displayStatsInfo(allData);
-    
-    // 显示各问题统计
     displayQuestionStats(allData);
 }
 
@@ -197,10 +194,10 @@ function getUniqueAnswers(questionKey, allData) {
 }
 
 // 导出数据
-function exportData() {
-    const allData = getAllSurveyData();
-    
-    if (allData.length === 0) {
+async function exportData() {
+    const allData = await getAllSurveyData();
+
+    if (!Array.isArray(allData) || allData.length === 0) {
         alert('暂无数据可导出！');
         return;
     }
