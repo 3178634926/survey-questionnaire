@@ -16,8 +16,9 @@ const questionMap = {
 
 // 初始化统计页面
 async function initStats() {
-    const allData = await getAllSurveyData();
+    const allData = await getAllSurveyData();   // 等待拿到数组
 
+    // 防御性检查，避免 Promise / null 之类继续往下走
     if (!Array.isArray(allData) || allData.length === 0) {
         showNoData();
         return;
